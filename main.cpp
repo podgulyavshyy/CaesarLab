@@ -1,8 +1,9 @@
 #include <iostream>
+#include <fstream>
 #include "library.h"
 
 int main() {
-    int key = 0;
+    std::string key = "3";
     while (true) {
         int n;
         try {
@@ -22,27 +23,15 @@ int main() {
             continue;
         }
         system("clear");
-        if (n == 1) {
+        std::ifstream in("file2.txt");
+        std::ofstream f("file1.txt");
+        while (!in.eof()) {
             std::string text;
-            std::cout << "Enter the text: ";
-            std::cin >> text;
-            fflush(stdin);
-            std::string key;
-            std::cout << "Enter key: ";
-            std::cin >> key;
-            fflush(stdin);
-            std::cout << Encrypt(text,std::stoi(key)) << std::endl;
-        }
-        if (n == 2) {
-            std::string text;
-            std::cout << "Enter the text: ";
-            std::cin >> text;
-            fflush(stdin);
-            std::string key;
-            std::cout << "Enter key: ";
-            std::cin >> key;
-            fflush(stdin);
-            std::cout << Decrypt(text,std::stoi(key)) << std::endl;
+            getline(in, text);
+            if (n == 1) text = Encrypt(text, std::stoi(key));
+            if (n == 2) text = Decrypt(text, std::stoi(key));
+            std::cout << text << std::endl;
+            f << text << std::endl;
         }
     }
 }
