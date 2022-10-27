@@ -1,9 +1,33 @@
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include "library.h"
 
+class FileWorker{
+public:
+    void Run(std::string firstFilePath, std::string secondFilePath, int mode, int key)
+    {
+        if (FILE *file = fopen(firstFilePath.c_str(), "r")) {
+            fclose(file);}
+        else return;
+        if (FILE *file = fopen(secondFilePath.c_str(), "r")) {
+            std::__fs::filesystem::remove(secondFilePath);
+        }
+        std::ifstream in(firstFilePath);
+        std::ofstream f(secondFilePath);
+        while (!in.eof()) {
+            std::string text;
+            getline(in, text);
+            if (mode == 1) text = Encrypt(text, key);
+            if (mode == 2) text = Decrypt(text, key);
+            if (mode == 3) text = Encrypt(text, key);
+            f << text << std::endl;
+        }
+    }
+};
+
+
 int main() {
-    std::string key = "3";
     while (true) {
         int n;
         try {
@@ -18,20 +42,21 @@ int main() {
             continue;
         }
         fflush(stdin);
-        if (n > 2) {
+        if (n > 3) {
             std::cout << "The command is not implemented!" << std::endl;
             continue;
         }
         system("clear");
-        std::ifstream in("file2.txt");
-        std::ofstream f("file1.txt");
-        while (!in.eof()) {
-            std::string text;
-            getline(in, text);
-            if (n == 1) text = Encrypt(text, std::stoi(key));
-            if (n == 2) text = Decrypt(text, std::stoi(key));
-            std::cout << text << std::endl;
-            f << text << std::endl;
-        }
+        FileWorker *fileWorker = new FileWorker;
+        std::string firstFilePath; std::cout <<"Enter file path to read from: "; std::cin>> firstFilePath;
+        fflush(stdin);
+        std::string secondFilePath; std::cout <<"Enter file path to wright in: "; std::cin>> secondFilePath;
+        fflush(stdin);
+        std::string key;
+        if (n == 3) key = rand() % 12 + 1;
+        else std::cout <<"Enter key: "; std::cin>> key;
+        fflush(stdin);
+        fileWorker->Run(firstFilePath, secondFilePath, n, std::stoi(key));
+        delete (fileWorker);
     }
 }
