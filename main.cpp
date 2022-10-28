@@ -9,7 +9,7 @@ public:
     {
         if (FILE *file = fopen(firstFilePath.c_str(), "r")) {
             fclose(file);}
-        else return;
+        else {std::cout << "no file to read from" << std::endl; return;}
         if (FILE *file = fopen(secondFilePath.c_str(), "r")) {
             std::__fs::filesystem::remove(secondFilePath);
         }
@@ -42,9 +42,12 @@ int main() {
             continue;
         }
         fflush(stdin);
-        if (n > 3) {
+        if (n > 4) {
             std::cout << "The command is not implemented!" << std::endl;
             continue;
+        }
+        if (n == 4){
+            break;
         }
         system("clear");
         FileWorker *fileWorker = new FileWorker;
