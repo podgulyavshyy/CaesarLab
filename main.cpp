@@ -53,8 +53,12 @@ int main() {
         std::string secondFilePath; std::cout <<"Enter file path to wright in: "; std::cin>> secondFilePath;
         fflush(stdin);
         std::string key;
-        if (n == 3) key = rand() % 12 + 1;
-        else std::cout <<"Enter key: "; std::cin>> key;
+        if (n == 3){
+            fileWorker->Run(firstFilePath, secondFilePath, n, rand() % 12 + 1);
+            delete (fileWorker);
+            continue;
+        }
+        std::cout <<"Enter key: "; std::cin>> key;
         fflush(stdin);
         fileWorker->Run(firstFilePath, secondFilePath, n, std::stoi(key));
         delete (fileWorker);
