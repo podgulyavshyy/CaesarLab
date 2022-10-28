@@ -2,30 +2,59 @@
 #include <fstream>
 #include <filesystem>
 #include "library.h"
+#include <cstdlib>
+#include <vector>
 
-class FileWorker{
+
+class FileWriter{
 public:
-    void Run(std::string firstFilePath, std::string secondFilePath, int mode, int key)
+    void writeText(std::string secondFilePath,std::vector<char> buffer)
     {
-        if (FILE *file = fopen(firstFilePath.c_str(), "r")) {
-            fclose(file);}
-        else {std::cout << "no file to read from" << std::endl; return;}
-        if (FILE *file = fopen(secondFilePath.c_str(), "r")) {
-            std::__fs::filesystem::remove(secondFilePath);
-        }
-        std::ifstream in(firstFilePath);
-        std::ofstream f(secondFilePath);
-        while (!in.eof()) {
-            std::string text;
-            getline(in, text);
-            if (mode == 1) text = Encrypt(text, key);
-            if (mode == 2) text = Decrypt(text, key);
-            if (mode == 3) text = Encrypt(text, key);
-            f << text << std::endl;
-        }
+
     }
 };
 
+class FileReader{
+public:
+    int n = 1;
+    int key = 0;
+    const int BUFFER_SIZE = 1024;
+public:
+    void readFile(std::string firstFilePath)
+    {
+        std::ifstream ifile(firstFilePath, std::ifstream::binary);
+        if (ifile.good())
+        {
+            std::vector<char> buffer (BUFFER_SIZE + 1, 0);
+            while (1)
+            {
+                ifile.read(buffer.data(), BUFFER_SIZE);
+                std::streamsize s = ((ifile) ? BUFFER_SIZE : ifile.gcount());
+                buffer[s] = 0;
+                writeInFile(buffer, "otp" + firstFilePath);
+                if(!ifile) break;
+            }
+            ifile.close();
+        }
+        else
+        {
+            std::cout << "file is gay"<<std::endl;
+            return;
+        }
+    }
+
+    void writeInFile(std::vector<char> buffer,std::string filePath){
+        int i = 0;
+        while (i <= BUFFER_SIZE){
+            if (buffer[i] == 0) break;
+            if (this->n == 1 || this->n == 3){buffer[i] = Encrypt(buffer[i],this->key);}
+            if (this->n == 2){buffer[i] = Decrypt(buffer[i],this->key);}
+            i++;
+        }
+        //write buffer.data() in filePath from separate class
+        std::cout << buffer.data() << std::endl;
+    }
+};
 
 int main() {
     while (true) {
@@ -50,20 +79,26 @@ int main() {
             break;
         }
         system("clear");
-        FileWorker *fileWorker = new FileWorker;
+        FileReader *fileReader = new FileReader;
         std::string firstFilePath; std::cout <<"Enter file path to read from: "; std::cin>> firstFilePath;
+        firstFilePath = firstFilePath + ".txt";
         fflush(stdin);
-        std::string secondFilePath; std::cout <<"Enter file path to wright in: "; std::cin>> secondFilePath;
-        fflush(stdin);
-        std::string key;
-        if (n == 3){
-            fileWorker->Run(firstFilePath, secondFilePath, n, rand() % 12 + 1);
-            delete (fileWorker);
-            continue;
+        if (FILE *file = fopen(firstFilePath.c_str(), "r")) {fclose(file);}
+        else {std::cout << "no file to read from" << std::endl;continue;}
+        if (FILE *file = fopen(("otp" + firstFilePath).c_str(), "r")) {
+            std::__fs::filesystem::remove(("otp" + firstFilePath));
         }
-        std::cout <<"Enter key: "; std::cin>> key;
-        fflush(stdin);
-        fileWorker->Run(firstFilePath, secondFilePath, n, std::stoi(key));
-        delete (fileWorker);
+
+        fileReader->n = n;
+        if (n == 3){
+            fileReader->key = rand() % 26 + 1;
+        } else {
+            std::string key;
+            std::cout <<"Enter key: "; std::cin>> key;
+            fflush(stdin);
+            fileReader->key = std::stoi(key);
+        }
+        fileReader->readFile(firstFilePath);
+        delete (fileReader);
     }
 }
