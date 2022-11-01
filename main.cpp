@@ -5,7 +5,22 @@
 #include <cstdlib>
 #include <vector>
 
-class FileWriter{
+class IFileWriter
+{
+    public:
+        virtual void writeText(){};
+};
+class IFileReader
+{
+    public:
+        int n;
+        int key;
+        int BUFFER_SIZE;
+        virtual void writeText(){};
+};
+
+
+class FileWriter : public IFileWriter{
 public:
     void writeText(std::string filePath,std::vector<char> buffer)
     {
@@ -17,7 +32,7 @@ public:
     }
 };
 
-class FileReader{
+class FileReader : public IFileReader{
 public:
     int n = 1;
     int key = 0;
