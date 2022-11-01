@@ -54,3 +54,6 @@ dkms.conf
 .idea/
 
 cmake-build-debug/
+
+.DS_Store
+caesarLib/.DS_Store

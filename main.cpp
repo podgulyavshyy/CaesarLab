@@ -5,12 +5,15 @@
 #include <cstdlib>
 #include <vector>
 
-
 class FileWriter{
 public:
-    void writeText(std::string secondFilePath,std::vector<char> buffer)
+    void writeText(std::string filePath,std::vector<char> buffer)
     {
+        std::string s(buffer.begin(), buffer.end());
 
+        std::ofstream output(filePath, std::ios::app);
+        output << s;
+        output.close();
     }
 };
 
@@ -25,32 +28,35 @@ public:
         std::ifstream ifile(firstFilePath, std::ifstream::binary);
         if (ifile.good())
         {
-            std::vector<char> buffer (BUFFER_SIZE + 1, 0);
             while (1)
             {
+                std::vector<char> buffer (BUFFER_SIZE + 1, 0);
                 ifile.read(buffer.data(), BUFFER_SIZE);
                 std::streamsize s = ((ifile) ? BUFFER_SIZE : ifile.gcount());
                 buffer[s] = 0;
-                writeInFile(buffer, "otp" + firstFilePath);
+                encryptBufferAndWrite(buffer, "otp" + firstFilePath);
                 if(!ifile) break;
             }
             ifile.close();
         }
         else
         {
-            std::cout << "file is gay"<<std::endl;
+            std::cout << "error in file"<<std::endl;
             return;
         }
     }
 
-    void writeInFile(std::vector<char> buffer,std::string filePath){
+    void encryptBufferAndWrite(std::vector<char> buffer,std::string filePath){
         int i = 0;
         while (i <= BUFFER_SIZE){
+            if (buffer[i] == '\0'){i++; continue;}
             if (buffer[i] == 0) break;
             if (this->n == 1 || this->n == 3){buffer[i] = Encrypt(buffer[i],this->key);}
             if (this->n == 2){buffer[i] = Decrypt(buffer[i],this->key);}
             i++;
         }
+        FileWriter *writer = new FileWriter;
+        writer->writeText(filePath,buffer);
         //write buffer.data() in filePath from separate class
         std::cout << buffer.data() << std::endl;
     }
